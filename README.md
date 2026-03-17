@@ -1,5 +1,5 @@
 # Intro
-A simple app for birdwatchers. Log your bird sightings with a photo and detailed info.
+A simple app for birdwatchers coded with Claude Code. Log your bird sightings with a photo and detailed info.
 
 # React + TypeScript + Vite
 
