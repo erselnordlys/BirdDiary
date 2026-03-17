@@ -1,0 +1,67 @@
+$primary: #3d8c40;
+$bg: #f3f4f6;
+
+.page {
+  min-height: 100vh;
+  background: $bg;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.header {
+  background: $primary;
+  color: #fff;
+  padding: 1.5rem 1rem;
+  text-align: center;
+}
+
+.logo {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.tagline {
+  margin: 0.25rem 0 0;
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+.main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.log {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.logTitle {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: $primary;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 999px;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.4rem;
+}

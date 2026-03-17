@@ -1,0 +1,222 @@
+$primary: #3d8c40;
+$primary-dark: #2e6b31;
+$border: #d1d5db;
+$radius: 8px;
+$font-size-sm: 0.875rem;
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: $radius;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  transition: box-shadow 0.15s;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.species {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.date {
+  font-size: 0.8rem;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.cardContent {
+  display: flex;
+  gap: 0.875rem;
+  align-items: flex-start;
+}
+
+.cardPhoto {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+  border: 1px solid $border;
+}
+
+.cardText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.cardBody {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.location {
+  font-size: $font-size-sm;
+  color: #4b5563;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pin {
+  font-size: 0.85rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.actionBtn {
+  padding: 0.25rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  font-family: inherit;
+}
+
+.editBtn {
+  background: #f0faf0;
+  color: $primary-dark;
+  border-color: #c3e6c4;
+
+  &:hover {
+    background: #d6f0d7;
+  }
+}
+
+.deleteBtn {
+  background: #f9fafb;
+  color: #6b7280;
+  border-color: $border;
+
+  &:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+    border-color: #fca5a5;
+  }
+}
+
+.deleteBtnConfirm {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+
+  &:hover {
+    background: #fecaca;
+  }
+}
+
+// Inline edit form styles
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.editDateField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+
+  label {
+    font-size: $font-size-sm;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  input {
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid $border;
+    border-radius: 6px;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s;
+
+    &:focus {
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba(61, 140, 64, 0.15);
+    }
+  }
+}
+
+.editActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.saveBtn {
+  padding: 0.5rem 1.25rem;
+  background: $primary;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+
+  &:hover {
+    background: $primary-dark;
+  }
+}
+
+.cancelBtn {
+  padding: 0.5rem 1rem;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: 1px solid $border;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #f3f4f6;
+  }
+}
+
+.empty {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.95rem;
+  padding: 2rem 0;
+  margin: 0;
+}
