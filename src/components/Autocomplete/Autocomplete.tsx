@@ -26,7 +26,7 @@ export function Autocomplete<T>({
   suggestions,
   loading,
   renderSuggestion,
-  getSuggestionValue,
+  getSuggestionValue: _getSuggestionValue,
   required,
 }: AutocompleteProps<T>) {
   const [open, setOpen] = useState(false);
@@ -55,11 +55,10 @@ export function Autocomplete<T>({
   const selectItem = useCallback(
     (item: T) => {
       onSelect(item);
-      onChange(getSuggestionValue(item));
       setOpen(false);
       setHighlightedIndex(-1);
     },
-    [onSelect, onChange, getSuggestionValue],
+    [onSelect],
   );
 
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {

@@ -19,8 +19,12 @@ export function EntryEditForm({ entry, onSave, onCancel }: EntryEditFormProps) {
   const [species, setSpecies] = useState(entry.species);
   const [locationQuery, setLocationQuery] = useState(entry.location);
   const [location, setLocation] = useState(entry.location);
+  const [lat, setLat] = useState<number | undefined>(entry.lat);
+  const [lon, setLon] = useState<number | undefined>(entry.lon);
+  const [locationTouched, setLocationTouched] = useState(false);
   const [dateTime, setDateTime] = useState(entry.dateTime);
   const [photoUrl, setPhotoUrl] = useState(entry.photoUrl ?? '');
+  const [isUserPhoto, setIsUserPhoto] = useState(() => (entry.photoUrl ?? '').startsWith('data:'));
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { suggestions: speciesSuggestions, loading: speciesLoading } =
@@ -28,17 +32,21 @@ export function EntryEditForm({ entry, onSave, onCancel }: EntryEditFormProps) {
   const { suggestions: locationSuggestions, loading: locationLoading } =
     useLocationSuggestions(locationQuery);
 
+  const locationNeedsSelection = locationTouched && locationQuery.length > 0 && lat == null;
+
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     const compressed = await compressImage(file);
     setPhotoUrl(compressed);
+    setIsUserPhoto(true);
   }
 
   function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault();
     if (!species.trim() || !location.trim() || !dateTime) return;
-    onSave({ species: species.trim(), location: location.trim(), dateTime, photoUrl: photoUrl || undefined });
+    if (lat == null || lon == null) { setLocationTouched(true); return; }
+    onSave({ species: species.trim(), location: location.trim(), lat, lon, dateTime, photoUrl: photoUrl || undefined });
   }
 
   return (
@@ -53,7 +61,7 @@ export function EntryEditForm({ entry, onSave, onCancel }: EntryEditFormProps) {
           const display = `${taxon.comName} (${taxon.sciName})`;
           setSpeciesQuery(display);
           setSpecies(display);
-          if (taxon.photoUrl && !photoUrl) setPhotoUrl(taxon.photoUrl);
+          if (taxon.photoUrl && !isUserPhoto) setPhotoUrl(taxon.photoUrl);
         }}
         suggestions={speciesSuggestions}
         loading={speciesLoading}
@@ -67,27 +75,43 @@ export function EntryEditForm({ entry, onSave, onCancel }: EntryEditFormProps) {
         required
       />
 
-      <Autocomplete<LocationSuggestion>
-        id={`edit-location-${entry.id}`}
-        label="Location"
-        placeholder="Place name or UK postcode"
-        value={locationQuery}
-        onChange={(val) => { setLocationQuery(val); setLocation(val); }}
-        onSelect={(result) => { setLocationQuery(result.value); setLocation(result.value); }}
-        suggestions={locationSuggestions}
-        loading={locationLoading}
-        getSuggestionValue={(r) => r.value}
-        renderSuggestion={(r) => {
-          const parts = r.displayName.split(', ');
-          return (
-            <>
-              <span className={acStyles.optionMain}>{parts[0]}</span>
-              <span className={acStyles.optionSub}>{parts.slice(1).join(', ')}</span>
-            </>
-          );
-        }}
-        required
-      />
+      <div>
+        <Autocomplete<LocationSuggestion>
+          id={`edit-location-${entry.id}`}
+          label="Location"
+          placeholder="Place name or UK postcode"
+          value={locationQuery}
+          onChange={(val) => {
+            setLocationQuery(val);
+            setLocation(val);
+            setLat(undefined);
+            setLon(undefined);
+          }}
+          onSelect={(result) => {
+            setLocationQuery(result.value);
+            setLocation(result.value);
+            setLat(result.lat);
+            setLon(result.lon);
+            setLocationTouched(false);
+          }}
+          suggestions={locationSuggestions}
+          loading={locationLoading}
+          getSuggestionValue={(r) => r.value}
+          renderSuggestion={(r) => {
+            const parts = r.displayName.split(', ');
+            return (
+              <>
+                <span className={acStyles.optionMain}>{parts[0]}</span>
+                <span className={acStyles.optionSub}>{parts.slice(1).join(', ')}</span>
+              </>
+            );
+          }}
+          required
+        />
+        {locationNeedsSelection && (
+          <p className={formStyles.fieldError}>Please select a location from the suggestions</p>
+        )}
+      </div>
 
       <div className={styles.editDateField}>
         <label htmlFor={`edit-datetime-${entry.id}`}>Date & Time</label>
@@ -122,7 +146,7 @@ export function EntryEditForm({ entry, onSave, onCancel }: EntryEditFormProps) {
               <button
                 type="button"
                 className={formStyles.removePhotoBtn}
-                onClick={() => { setPhotoUrl(''); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                onClick={() => { setPhotoUrl(''); setIsUserPhoto(false); if (fileInputRef.current) fileInputRef.current.value = ''; }}
               >
                 Remove
               </button>

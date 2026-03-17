@@ -4,7 +4,10 @@ import type { BirdEntry } from '../types/BirdEntry';
 export function useBirdEntries() {
   const [entries, setEntries] = useState<BirdEntry[]>(() => {
     const stored = localStorage.getItem('birdEntries');
-    return stored ? JSON.parse(stored) : [];
+    if (!stored) return [];
+    const parsed: BirdEntry[] = JSON.parse(stored);
+    // Filter out legacy entries without coordinates
+    return parsed.filter((e) => e.lat != null && e.lon != null);
   });
 
   useEffect(() => {

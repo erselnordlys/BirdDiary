@@ -3,11 +3,15 @@ import { useState, useEffect } from 'react';
 export interface LocationSuggestion {
   displayName: string;
   value: string;
+  lat: number;
+  lon: number;
 }
 
 interface NominatimResult {
   place_id: number;
   display_name: string;
+  lat: string;
+  lon: string;
 }
 
 export function useLocationSuggestions(query: string) {
@@ -33,7 +37,12 @@ export function useLocationSuggestions(query: string) {
           data.map((r) => {
             const parts = r.display_name.split(', ');
             const value = parts.slice(0, 2).join(', ');
-            return { displayName: r.display_name, value };
+            return {
+              displayName: r.display_name,
+              value,
+              lat: parseFloat(r.lat),
+              lon: parseFloat(r.lon),
+            };
           }),
         );
       } catch {

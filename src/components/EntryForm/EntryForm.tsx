@@ -1,14 +1,20 @@
-import { useState, useRef } from 'react';
-import type { BirdEntry } from '../../types/BirdEntry';
-import { Autocomplete } from '../Autocomplete/Autocomplete';
-import { useSpeciesSuggestions, type BirdTaxon } from '../../hooks/useSpeciesSuggestions';
-import { useLocationSuggestions, type LocationSuggestion } from '../../hooks/useLocationSuggestions';
-import { compressImage } from '../../utils/compressImage';
-import styles from './EntryForm.module.scss';
-import acStyles from '../Autocomplete/Autocomplete.module.scss';
+import { useState, useRef } from "react";
+import type { BirdEntry } from "../../types/BirdEntry";
+import { Autocomplete } from "../Autocomplete/Autocomplete";
+import {
+  useSpeciesSuggestions,
+  type BirdTaxon,
+} from "../../hooks/useSpeciesSuggestions";
+import {
+  useLocationSuggestions,
+  type LocationSuggestion,
+} from "../../hooks/useLocationSuggestions";
+import { compressImage } from "../../utils/compressImage";
+import styles from "./EntryForm.module.scss";
+import acStyles from "../Autocomplete/Autocomplete.module.scss";
 
 interface EntryFormProps {
-  onAdd: (entry: Omit<BirdEntry, 'id'>) => void;
+  onAdd: (entry: Omit<BirdEntry, "id">) => void;
 }
 
 function nowLocal() {
@@ -18,12 +24,16 @@ function nowLocal() {
 }
 
 export function EntryForm({ onAdd }: EntryFormProps) {
-  const [speciesQuery, setSpeciesQuery] = useState('');
-  const [species, setSpecies] = useState('');
-  const [locationQuery, setLocationQuery] = useState('');
-  const [location, setLocation] = useState('');
+  const [speciesQuery, setSpeciesQuery] = useState("");
+  const [species, setSpecies] = useState("");
+  const [locationQuery, setLocationQuery] = useState("");
+  const [location, setLocation] = useState("");
+  const [lat, setLat] = useState<number | undefined>();
+  const [lon, setLon] = useState<number | undefined>();
+  const [locationTouched, setLocationTouched] = useState(false);
   const [dateTime, setDateTime] = useState(nowLocal);
-  const [photoUrl, setPhotoUrl] = useState('');
+  const [photoUrl, setPhotoUrl] = useState("");
+  const [isUserPhoto, setIsUserPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { suggestions: speciesSuggestions, loading: speciesLoading } =
@@ -31,24 +41,43 @@ export function EntryForm({ onAdd }: EntryFormProps) {
   const { suggestions: locationSuggestions, loading: locationLoading } =
     useLocationSuggestions(locationQuery);
 
+  const locationNeedsSelection =
+    locationTouched && locationQuery.length > 0 && lat == null;
+
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     const compressed = await compressImage(file);
     setPhotoUrl(compressed);
+    setIsUserPhoto(true);
   }
 
   function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault();
     if (!species.trim() || !location.trim() || !dateTime) return;
-    onAdd({ species: species.trim(), location: location.trim(), dateTime, photoUrl: photoUrl || undefined });
-    setSpeciesQuery('');
-    setSpecies('');
-    setLocationQuery('');
-    setLocation('');
+    if (lat == null || lon == null) {
+      setLocationTouched(true);
+      return;
+    }
+    onAdd({
+      species: species.trim(),
+      location: location.trim(),
+      lat,
+      lon,
+      dateTime,
+      photoUrl: photoUrl || undefined,
+    });
+    setSpeciesQuery("");
+    setSpecies("");
+    setLocationQuery("");
+    setLocation("");
+    setLat(undefined);
+    setLon(undefined);
+    setLocationTouched(false);
     setDateTime(nowLocal());
-    setPhotoUrl('');
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    setPhotoUrl("");
+    setIsUserPhoto(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   return (
@@ -68,7 +97,7 @@ export function EntryForm({ onAdd }: EntryFormProps) {
           const display = `${taxon.comName} (${taxon.sciName})`;
           setSpeciesQuery(display);
           setSpecies(display);
-          if (taxon.photoUrl && !photoUrl) setPhotoUrl(taxon.photoUrl);
+          if (taxon.photoUrl && !isUserPhoto) setPhotoUrl(taxon.photoUrl);
         }}
         suggestions={speciesSuggestions}
         loading={speciesLoading}
@@ -82,33 +111,47 @@ export function EntryForm({ onAdd }: EntryFormProps) {
         required
       />
 
-      <Autocomplete<LocationSuggestion>
-        id="location"
-        label="Location"
-        placeholder="Place name or UK postcode, e.g. Hyde Park or SW1A"
-        value={locationQuery}
-        onChange={(val) => {
-          setLocationQuery(val);
-          setLocation(val);
-        }}
-        onSelect={(result) => {
-          setLocationQuery(result.value);
-          setLocation(result.value);
-        }}
-        suggestions={locationSuggestions}
-        loading={locationLoading}
-        getSuggestionValue={(r) => r.value}
-        renderSuggestion={(r) => {
-          const parts = r.displayName.split(', ');
-          return (
-            <>
-              <span className={acStyles.optionMain}>{parts[0]}</span>
-              <span className={acStyles.optionSub}>{parts.slice(1).join(', ')}</span>
-            </>
-          );
-        }}
-        required
-      />
+      <div>
+        <Autocomplete<LocationSuggestion>
+          id="location"
+          label="Location"
+          placeholder="Place name or UK postcode, e.g. Hyde Park or SW1A"
+          value={locationQuery}
+          onChange={(val) => {
+            setLocationQuery(val);
+            setLocation(val);
+            setLat(undefined);
+            setLon(undefined);
+          }}
+          onSelect={(result) => {
+            setLocationQuery(result.value);
+            setLocation(result.value);
+            setLat(result.lat);
+            setLon(result.lon);
+            setLocationTouched(false);
+          }}
+          suggestions={locationSuggestions}
+          loading={locationLoading}
+          getSuggestionValue={(r) => r.value}
+          renderSuggestion={(r) => {
+            const parts = r.displayName.split(", ");
+            return (
+              <>
+                <span className={acStyles.optionMain}>{parts[0]}</span>
+                <span className={acStyles.optionSub}>
+                  {parts.slice(1).join(", ")}
+                </span>
+              </>
+            );
+          }}
+          required
+        />
+        {locationNeedsSelection && (
+          <p className={styles.fieldError}>
+            Please select a location from the suggestions
+          </p>
+        )}
+      </div>
 
       <div className={styles.field}>
         <label htmlFor="dateTime">Date & Time</label>
@@ -125,11 +168,15 @@ export function EntryForm({ onAdd }: EntryFormProps) {
         <span className={styles.photoLabel}>Photo</span>
         <div className={styles.photoRow}>
           {photoUrl && (
-            <img src={photoUrl} alt="Sighting preview" className={styles.photoPreview} />
+            <img
+              src={photoUrl}
+              alt="Sighting preview"
+              className={styles.photoPreview}
+            />
           )}
           <div className={styles.uploadArea}>
             <label htmlFor="photo" className={styles.uploadBtn}>
-              {photoUrl ? 'Replace photo' : 'Upload photo'}
+              {photoUrl ? "Replace photo" : "Upload photo"}
             </label>
             <input
               id="photo"
@@ -143,13 +190,19 @@ export function EntryForm({ onAdd }: EntryFormProps) {
               <button
                 type="button"
                 className={styles.removePhotoBtn}
-                onClick={() => { setPhotoUrl(''); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                onClick={() => {
+                  setPhotoUrl("");
+                  setIsUserPhoto(false);
+                  if (fileInputRef.current) fileInputRef.current.value = "";
+                }}
               >
                 Remove
               </button>
             )}
             {!photoUrl && (
-              <p className={styles.photoHint}>Or select a species above to auto-fill</p>
+              <p className={styles.photoHint}>
+                Or select a species above to auto-fill
+              </p>
             )}
           </div>
         </div>

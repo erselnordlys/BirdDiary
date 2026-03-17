@@ -52,6 +52,12 @@ $font-size-sm: 0.875rem;
   }
 }
 
+.fieldError {
+  margin: 0.3rem 0 0;
+  font-size: 0.78rem;
+  color: #b91c1c;
+}
+
 .photoField {
   display: flex;
   flex-direction: column;
