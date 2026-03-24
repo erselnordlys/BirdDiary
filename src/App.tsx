@@ -3,6 +3,7 @@ import { useBirdEntries } from "./hooks/useBirdEntries";
 import { EntryForm } from "./components/EntryForm/EntryForm";
 import { EntryList } from "./components/EntryList/EntryList";
 import { MapView } from "./components/MapView/MapView";
+import { Login } from "./components/Login/Login";
 import styles from "./App.module.scss";
 
 type Tab = "log" | "map";
@@ -10,12 +11,18 @@ type Tab = "log" | "map";
 export default function App() {
   const { entries, addEntry, removeEntry, updateEntry } = useBirdEntries();
   const [tab, setTab] = useState<Tab>("log");
+  const [loginOpen, setLoginOpen] = useState(false);
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <h1 className={styles.logo}>🐦 My BirdDiary</h1>
-        <p className={styles.tagline}>Track every feathered encounter</p>
+        <div className={styles.headerCenter}>
+          <h1 className={styles.logo}>🐦 My BirdDiary</h1>
+          <p className={styles.tagline}>Track every feathered encounter</p>
+        </div>
+        <button className={styles.loginBtn} onClick={() => setLoginOpen(true)}>
+          Log in / Sign up
+        </button>
       </header>
 
       <nav className={styles.tabs}>
@@ -68,6 +75,7 @@ export default function App() {
           <MapView entries={entries} />
         </div>
       )}
+      <Login open={loginOpen} onClose={() => setLoginOpen(false)} />
     </div>
   );
 }
